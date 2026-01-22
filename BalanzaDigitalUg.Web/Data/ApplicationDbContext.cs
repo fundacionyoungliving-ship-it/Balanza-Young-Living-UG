@@ -28,7 +28,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithOne(m => m.Comuna)
             .HasForeignKey(m => m.ComunaId);
 
-
+         //Commit de prueba   
         modelBuilder.Entity<TipoMaterial>().HasData(
             new TipoMaterial { Id = 1, Nombre = "Plastico" },
             new TipoMaterial { Id = 2, Nombre = "Vidrio" },
