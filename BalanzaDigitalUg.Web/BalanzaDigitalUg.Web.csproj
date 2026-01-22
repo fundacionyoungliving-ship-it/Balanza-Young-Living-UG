@@ -20,4 +20,20 @@
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Shared\ExternalLoginPicker.razor" />
+      <AdditionalFiles Include="Components\Shared\ManageLayout.razor" />
+      <AdditionalFiles Include="Components\Shared\ManageNavMenu.razor" />
+      <AdditionalFiles Include="Components\Shared\RedirectToLogin.razor" />
+      <AdditionalFiles Include="Components\Shared\ShowRecoveryCodes.razor" />
+      <AdditionalFiles Include="Components\Shared\StatusMessage.razor" />
+      <AdditionalFiles Include="Pages\Comunas\Comunas.razor" />
+      <AdditionalFiles Include="Pages\Error\Error.razor" />
+      <AdditionalFiles Include="Pages\Home\Home.razor" />
+      <AdditionalFiles Include="Pages\Materiales\TipoMateriales.razor" />
+      <AdditionalFiles Include="Pages\Registros\ProcesarRegistros.razor" />
+      <AdditionalFiles Include="Pages\Registros\RegistrosProcesados.razor" />
+      <AdditionalFiles Include="Pages\Usuarios\Usuarios.razor" />
+    </ItemGroup>
+
 </Project>
