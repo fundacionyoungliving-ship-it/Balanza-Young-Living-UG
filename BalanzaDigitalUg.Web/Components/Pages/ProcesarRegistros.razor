@@ -1,0 +1,295 @@
+﻿<!-- Pantalla para procesar registros no procesados -->
+@page "/ProcesarRegistros"
+@using System.Security.Claims
+@using BalanzaDigitalUg.Web.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<AuthorizeView Context="authorizeContext">
+
+    <PageTitle>Procesar Registros</PageTitle>
+
+    <h3 class="mb-4">Registros pendientes de procesar</h3>
+
+    <div class="alert alert-info">Para procesar un registro, haga <b>doble clic</b> sobre la fila correspondiente en la
+        tabla.
+    </div>
+
+    @if (_registrosPendientes is null)
+    {
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+    }
+    else if (!_registrosPendientes.Any())
+    {
+        <div class="alert alert-info">No hay registros pendientes de procesar.</div>
+    }
+    else
+    {
+        <div class="table-responsive d-flex justify-content-center">
+            <table class="table table-sm table-bordered align-middle" style="max-width:1000px;font-size:0.95em;">
+                <thead class="table-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Uid</th>
+                    <th>Nombre</th>
+                    <th>Material</th>
+                    <th>Peso (kg)</th>
+                    <th>Fecha</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var reg in _registrosPaginaActual)
+                {
+                    <tr ondblclick="@(() => OnRegistroDobleClick(reg.Id))"
+                        style="cursor:pointer;@(reg.Id == _registroSeleccionadoId ? "background-color:#e0f7fa;" : null)">
+                        <td>@reg.Id</td>
+                        <td>@reg.Uid</td>
+                        <td>@reg.Nombre</td>
+                        <td>@reg.Material</td>
+                        <td>@reg.Peso</td>
+                        <td>@reg.Fecha.ToString("g")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(_paginaActual == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="PaginaAnterior">Anterior</button>
+                </li>
+                @foreach (var pageNumber in Enumerable.Range(1, TotalPaginas))
+                {
+                    <li class="page-item @(_paginaActual == pageNumber ? "active" : "")">
+                        <button class="page-link"
+                                @onclick="() => GoToPage(pageNumber)">@(pageNumber.ToString())</button>
+                    </li>
+                }
+                <li class="page-item @(_paginaActual == TotalPaginas ? "disabled" : "")">
+                    <button class="page-link" @onclick="PaginaSiguiente">Siguiente</button>
+                </li>
+            </ul>
+        </nav>
+    }
+
+    <hr class="my-4"/>
+    @if (!string.IsNullOrEmpty(_mensajeError))
+    {
+        <div class="alert alert-danger mt-3" id="alertError">@_mensajeError</div>
+    }
+    @if (!string.IsNullOrEmpty(_mensaje))
+    {
+        <div class="alert alert-info mt-3" id="alertMensaje">@_mensaje</div>
+    }
+    <h4>Crear material reciclado y marcar registro como procesado</h4>
+    <EditForm Model="NuevoMaterial" OnSubmit="ProcesarRegistro" class="row g-3" FormName="materialesForm">
+        <DataAnnotationsValidator/>
+        <ValidationSummary class="text-danger"/>
+
+        <!-- Eliminado el select de registro a procesar -->
+
+        <div class="col-md-4">
+            <label class="form-label">Tipo de material</label>
+            <select class="form-select" @bind="NuevoMaterial.TipoId" required>
+                <option value="">Seleccione...</option>
+                @foreach (var tipo in _tiposMaterial)
+                {
+                    <option value="@tipo.Id">@tipo.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Peso (kg)</label>
+            <InputNumber class="form-control" @bind-Value="NuevoMaterial.Peso" required/>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Comuna</label>
+            <select class="form-select" @bind="NuevoMaterial.ComunaId" required>
+                <option value="">Seleccione...</option>
+                @foreach (var comuna in _comunas)
+                {
+                    <option value="@comuna.Id">@comuna.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-success" type="submit">Procesar registro</button>
+        </div>
+
+    </EditForm>
+</AuthorizeView>
+
+@code {
+    [SupplyParameterFromForm] private MaterialReciclado NuevoMaterial { get; set; } = new();
+    private List<Registros>? _registrosPendientes;
+    private List<TipoMaterial> _tiposMaterial = [];
+    private List<Comuna> _comunas = [];
+    private int? _registroSeleccionadoId;
+    private string? _mensaje;
+    private string? _mensajeError;
+    private Timer? _alertTimer;
+    private Timer? _alertErrorTimer;
+
+    // Paginación
+    private int _paginaActual = 1;
+    private readonly int _tamanioPagina = 5;
+    private int TotalPaginas => _registrosPendientes is null ? 1 : (int)Math.Ceiling(_registrosPendientes.Count / (double)_tamanioPagina);
+
+    private IEnumerable<Registros> _registrosPaginaActual = [];
+
+    private void PaginaAnterior()
+    {
+        if (_paginaActual > 1)
+            _paginaActual--;
+        UpdateDisplayedItems();
+    }
+
+    private void PaginaSiguiente()
+    {
+        if (_paginaActual < TotalPaginas)
+            _paginaActual++;
+        UpdateDisplayedItems();
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber < 1 || pageNumber > TotalPaginas) return;
+
+        _paginaActual = pageNumber;
+        UpdateDisplayedItems();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatosAsync();
+        UpdateDisplayedItems();
+    }
+
+    private async Task CargarDatosAsync()
+    {
+        _registrosPendientes = await Db.Registros
+            .Where(r => !r.ProcesadoEnAppWeb)
+            .OrderBy(r => r.Fecha)
+            .ToListAsync();
+
+        _tiposMaterial = await Db.TipoMateriales.OrderBy(t => t.Nombre).ToListAsync();
+        _comunas = await Db.Comunas.OrderBy(c => c.Nombre).ToListAsync();
+        _paginaActual = 1; // Reiniciar a la primera página al recargar datos
+    }
+
+    private void UpdateDisplayedItems()
+    {
+        if (_registrosPendientes is null) return;
+        _registrosPaginaActual = _registrosPendientes
+            .Skip((_paginaActual - 1) * _tamanioPagina)
+            .Take(_tamanioPagina)
+            .ToList();
+    }
+
+    private void MostrarMensaje(string mensaje)
+    {
+        _mensaje = mensaje;
+        StateHasChanged();
+        _alertTimer?.Dispose();
+        _alertTimer = new Timer(_ =>
+        {
+            _mensaje = null;
+            InvokeAsync(StateHasChanged);
+        }, null, 3000, Timeout.Infinite);
+    }
+
+    private void MostrarMensajeError(string mensaje)
+    {
+        _mensajeError = mensaje;
+        StateHasChanged();
+        _alertErrorTimer?.Dispose();
+        _alertErrorTimer = new Timer(_ =>
+        {
+            _mensajeError = null;
+            InvokeAsync(StateHasChanged);
+        }, null, 3000, Timeout.Infinite);
+    }
+
+    private async Task ProcesarRegistro()
+    {
+        // validar usuario autenticado
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity is null || !user.Identity.IsAuthenticated)
+        {
+            MostrarMensaje("Usuario no autenticado.");
+            return;
+        }
+
+        if (_registroSeleccionadoId is null)
+        {
+            MostrarMensaje("Debe seleccionar un registro a procesar.");
+            return;
+        }
+
+        var registro = await Db.Registros.FindAsync(_registroSeleccionadoId.Value);
+        if (registro is null)
+        {
+            MostrarMensaje("Registro no encontrado.");
+            return;
+        }
+
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            MostrarMensaje("No se pudo obtener el ID del usuario autenticado.");
+            return;
+        }
+
+        var material = new MaterialReciclado
+        {
+            TipoId = NuevoMaterial.TipoId,
+            Peso = NuevoMaterial.Peso,
+            UsuarioId = userId,
+            ComunaId = NuevoMaterial.ComunaId,
+            FechaIngreso = DateTime.Now,
+            UsuarioBalanza = NuevoMaterial.UsuarioBalanza
+        };
+        Db.MaterialesReciclados.Add(material);
+
+        // Marcar el registro como procesado
+        registro.ProcesadoEnAppWeb = true;
+        await Db.SaveChangesAsync();
+
+        MostrarMensaje("Registro procesado correctamente.");
+        // Limpiar formulario y recargar datos
+        NuevoMaterial = new();
+        _registroSeleccionadoId = null;
+        await OnInitializedAsync();
+    }
+
+    private void OnRegistroDobleClick(int id)
+    {
+        _registroSeleccionadoId = id;
+        var registro = _registrosPendientes?.FirstOrDefault(r => r.Id == id);
+        if (registro != null)
+        {
+            var tipo = _tiposMaterial.FirstOrDefault(t => t.Nombre.Equals(registro.Material, StringComparison.OrdinalIgnoreCase));
+            if (tipo != null)
+            {
+                NuevoMaterial.TipoId = tipo.Id;
+                NuevoMaterial.Peso = registro.Peso;
+            }
+            else
+            {
+                NuevoMaterial.Peso = registro.Peso;
+                MostrarMensajeError($"No se encontró el tipo de material '{registro.Material}'. Selecciónelo manualmente.");
+            }
+
+            NuevoMaterial.UsuarioBalanza = registro.Nombre;
+        }
+       
+        StateHasChanged();
+    }
+
+}

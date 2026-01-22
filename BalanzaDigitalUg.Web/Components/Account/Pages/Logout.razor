@@ -1,0 +1,16 @@
+﻿@page "/Account/logout"
+@using Microsoft.AspNetCore.Identity
+@using BalanzaDigitalUg.Web.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavManager
+
+<h3>Cerrando sesión...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SignInManager.SignOutAsync();
+        NavManager.NavigateTo("/account/login", forceLoad: true); // Cambia la ruta si tu login es diferente
+    }
+}
+

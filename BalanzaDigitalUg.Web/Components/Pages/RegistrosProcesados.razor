@@ -1,0 +1,174 @@
+﻿@page "/registrosProcesados"
+@using BalanzaDigitalUg.Web.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+@rendermode InteractiveServer
+
+<PageTitle>Consulta de Registros procesados</PageTitle>
+
+<div class="container py-4">
+    <h3 class="mb-4">Registros procesados</h3>
+
+    <div class="row mb-4 g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Fecha inicio</label>
+            <InputDate class="form-control" @bind-Value="_fechaInicio" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Fecha fin</label>
+            <InputDate class="form-control" @bind-Value="_fechaFin" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Comuna</label>
+            <select class="form-select" @bind="_comunaId">
+                <option value="">Todas</option>
+                @foreach (var comuna in _comunas)
+                {
+                    <option value="@comuna.Id">@comuna.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100" @onclick="FiltrarRegistros">Filtrar</button>
+        </div>
+    </div>
+
+    @if (_materiales is null)
+    {
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+    }
+    else if (!_materiales.Any())
+    {
+        <div class="alert alert-info">No hay registros procesados con los filtros seleccionados.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Tipo</th>
+                    <th>Peso (kg)</th>
+                    <th>Usuario que entregó material</th>
+                    <th>Usuario que procesó material</th>
+                    <th>Comuna</th>
+                    <th>Fecha</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var mat in _materialesPaginaActual)
+                {
+                    <tr>
+                        <td>@mat.Id</td>
+                        <td>@mat.Tipo?.Nombre</td>
+                        <td>@mat.Peso</td>
+                        <td>@mat.UsuarioBalanza</td>
+                        <td>@mat.Usuario?.UserName</td>
+                        <td>@mat.Comuna?.Nombre</td>
+                        <td>@mat.FechaIngreso.ToString("g")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(_paginaActual == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="PaginaAnterior">Anterior</button>
+                </li>
+                @foreach (var pageNumber in Enumerable.Range(1, TotalPaginas))
+                {
+                    <li class="page-item @(_paginaActual == pageNumber ? "active" : "")">
+                        <button class="page-link" @onclick="() => GoToPage(pageNumber)">@(pageNumber.ToString())</button>
+                    </li>
+                }
+                <li class="page-item @(_paginaActual == TotalPaginas ? "disabled" : "")">
+                    <button class="page-link" @onclick="PaginaSiguiente">Siguiente</button>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>
+
+@code {
+    private List<MaterialReciclado>? _materiales;
+    private IEnumerable<MaterialReciclado> _materialesPaginaActual = [];
+    private int _paginaActual = 1;
+    private readonly int _tamanioPagina = 10;
+    private int TotalPaginas => _materiales is null ? 1 : (int)Math.Ceiling(_materiales.Count / (double)_tamanioPagina);
+
+    private List<Comuna> _comunas = [];
+    private DateTime? _fechaInicio = DateTime.Now.AddMonths(-1);
+    private DateTime? _fechaFin = DateTime.Now;
+    private int? _comunaId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _comunas = await Db.Comunas.OrderBy(c => c.Nombre).ToListAsync();
+        await CargarMaterialesAsync();
+        UpdateDisplayedItems();
+    }
+
+    private async Task CargarMaterialesAsync()
+    {
+        var query = Db.MaterialesReciclados
+            .Include(m => m.Tipo)
+            .Include(m => m.Usuario)
+            .Include(m => m.Comuna)
+            .OrderByDescending(m => m.Id)
+            .AsQueryable();
+
+        if (_fechaInicio.HasValue)
+        {
+            query = query.Where(m => m.FechaIngreso >= _fechaInicio.Value);
+        }
+        if (_fechaFin.HasValue)
+        {
+            query = query.Where(m => m.FechaIngreso <= _fechaFin.Value);
+        }
+        if (_comunaId is > 0)
+        {
+            query = query.Where(m => m.ComunaId == _comunaId.Value);
+        }
+
+        _materiales = await query.ToListAsync();
+        _paginaActual = 1;
+        UpdateDisplayedItems();
+    }
+
+    private void UpdateDisplayedItems()
+    {
+        if (_materiales is null) return;
+        _materialesPaginaActual = _materiales
+            .Skip((_paginaActual - 1) * _tamanioPagina)
+            .Take(_tamanioPagina)
+            .ToList();
+    }
+
+    private async Task FiltrarRegistros()
+    {
+        await CargarMaterialesAsync();
+    }
+
+    private void PaginaAnterior()
+    {
+        if (_paginaActual > 1)
+            _paginaActual--;
+        UpdateDisplayedItems();
+    }
+
+    private void PaginaSiguiente()
+    {
+        if (_paginaActual < TotalPaginas)
+            _paginaActual++;
+        UpdateDisplayedItems();
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber < 1 || pageNumber > TotalPaginas) return;
+        _paginaActual = pageNumber;
+        UpdateDisplayedItems();
+    }
+}

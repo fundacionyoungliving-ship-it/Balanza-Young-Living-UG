@@ -1,0 +1,84 @@
+﻿@inherits LayoutComponentBase
+
+<div class="d-flex" style="min-height: 100vh;">
+    <!-- Sidebar -->
+    <nav class="bg-dark text-white p-3 d-flex flex-column justify-content-between"
+        style="width: 240px; min-height: 100vh;">
+        <div>
+            <div class="mb-4 text-center">
+                <img src="/images/logoUG.png" alt="Logo" height="150" width="150" />
+                <span class="fs-4 fw-bold">Balanza Digital</span>
+            </div>
+            <ul class="nav flex-column gap-3">
+                <li class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" activeClass="active" href="/">
+                        <i class="bi bi-house-fill me-2 fs-5"></i> <span>Inicio</span>
+                    </NavLink>
+                </li>
+                <AuthorizeView Roles="Gestor,Admin">
+                    <Authorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white d-flex align-items-center" activeClass="active"
+                                href="/procesarregistros">
+                                <i class="bi bi-arrow-repeat me-2 fs-5"></i> <span>Procesar Registros Balanza</span>
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white d-flex align-items-center" activeClass="active"
+                                href="/registrosProcesados">
+                                <i class="bi bi-journal-check me-2 fs-5"></i> <span>Consultar Registros Procesados</span>
+                            </NavLink>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <li class="nav-item">
+                            <div class="text-white d-flex align-items-center fw-bold mb-1 mt-3">
+                                <i class="bi bi-gear-fill me-2 fs-5"></i> <span>Configuración</span>
+                            </div>
+                            <ul class="nav flex-column ms-4">
+                                <li class="nav-item">
+                                    <NavLink class="nav-link text-white" activeClass="active" href="/tipomateriales">
+                                        <i class="bi bi-boxes me-2 fs-6"></i> Tipos de Material
+                                    </NavLink>
+                                </li>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link text-white" activeClass="active" href="/comunas">
+                                        <i class="bi bi-geo-alt-fill me-2 fs-6"></i> Comunas
+                                    </NavLink>
+                                </li>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link text-white" activeClass="active" href="/usuarios">
+                                        <i class="bi bi-people-fill me-2 fs-6"></i> Usuarios
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+                <!-- Si existiera una pantalla de mantenimiento de usuarios, aquí se agregaría -->
+            </ul>
+        </div>
+        <LogoutBtn />
+
+    </nav>
+
+    <!-- Main content -->
+    <div class="flex-grow-1 bg-light">
+        <div class="container-fluid py-4">
+            @Body
+        </div>
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+
+
+}

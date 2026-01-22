@@ -1,0 +1,38 @@
+﻿@using BalanzaDigitalUg.Web.Data
+@using Microsoft.AspNetCore.Identity
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+@inject SignInManager<ApplicationUser> SignInManager
+
+<div class="mt-4 pt-4 border-top border-secondary">
+    <AuthorizeView>
+        <Authorized>
+            <div class="d-flex flex-column align-items-center">
+                <span class="mb-2"><i class="bi bi-person-circle me-1"></i>@context.User.Identity?.Name</span>
+                <button class="btn btn-outline-light btn-sm w-100" @onclick="Logout">Salir</button>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="d-flex flex-column align-items-center">
+                <button class="btn btn-outline-light btn-sm w-100" @onclick="GoToLogin">Iniciar sesion</button>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+@code {
+
+    private Task Logout()
+    {
+        // Redirige al endpoint de logout de Identity, que elimina la sesión
+        
+        NavManager.NavigateTo("/Account/Logout", forceLoad: true);
+        return Task.CompletedTask;
+    }
+    
+    void GoToLogin()
+    {
+        NavManager.NavigateTo("/Account/Login", forceLoad: true);
+    }
+
+}
