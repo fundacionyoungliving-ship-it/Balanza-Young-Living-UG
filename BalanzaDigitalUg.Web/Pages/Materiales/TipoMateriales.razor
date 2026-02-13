@@ -1,0 +1,141 @@
+﻿@page "/tipomateriales"
+@using BalanzaDigitalUg.Web.Components.Layout
+@using BalanzaDigitalUg.Web.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@rendermode InteractiveServer
+@layout MainLayout
+
+<div class="container py-4">
+    <h3 class="mb-4">Mantenimiento de Tipos de Material</h3>
+
+    @if (!string.IsNullOrEmpty(_mensaje))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @_mensaje
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @onclick="() => _mensaje = string.Empty"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-lg-7 col-md-10 mx-auto">
+            <h5 class="mb-3">@(_editando ? "Editar TipoMaterial" : "Agregar TipoMaterial")</h5>
+            <EditForm Model="TipoMaterialActual" OnValidSubmit="Guardar" FormName="tipoMaterialForm">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <InputText class="form-control" @bind-Value="TipoMaterialActual.Nombre" />
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    @if (_editando)
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+                    }
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            @if (_tipoMateriales == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (_tipoMateriales.Count == 0)
+            {
+                <div class="alert alert-info">No hay tipos de material registrados.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th style="width:60%">Nombre</th>
+                            <th style="width:40%">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var tm in _tipoMateriales)
+                        {
+                            <tr>
+                                <td>@tm.Nombre</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary btn-sm" title="Editar" @onclick="() => Editar(tm)"><i class="bi bi-pencil"></i> Editar</button>
+                                        <button class="btn btn-danger btn-sm" title="Eliminar" @onclick="() => Eliminar(tm.Id)"><i class="bi bi-trash"></i> Eliminar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<TipoMaterial>? _tipoMateriales;
+    [SupplyParameterFromForm] private TipoMaterial TipoMaterialActual { get; set; } = new();
+    private bool _editando = false;
+    private string _mensaje = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTipoMateriales();
+    }
+
+    private async Task CargarTipoMateriales()
+    {
+        _tipoMateriales = await DbContext.TipoMateriales.AsNoTracking().ToListAsync();
+    }
+
+    private async Task Guardar()
+    {
+        if (_editando)
+        {
+            DbContext.TipoMateriales.Update(TipoMaterialActual);
+            _mensaje = "Tipo de material actualizado correctamente.";
+        }
+        else
+        {
+            DbContext.TipoMateriales.Add(TipoMaterialActual);
+            _mensaje = "Tipo de material agregado correctamente.";
+        }
+
+        await DbContext.SaveChangesAsync();
+        await CargarTipoMateriales();
+        TipoMaterialActual = new();
+        _editando = false;
+    }
+
+    private Task Editar(TipoMaterial tm)
+    {
+        TipoMaterialActual = new TipoMaterial { Id = tm.Id, Nombre = tm.Nombre };
+        _editando = true;
+        _mensaje = string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private async Task Eliminar(int id)
+    {
+        var tm = await DbContext.TipoMateriales.FindAsync(id);
+        if (tm == null) return;
+        DbContext.TipoMateriales.Remove(tm);
+        await DbContext.SaveChangesAsync();
+        await CargarTipoMateriales();
+        _mensaje = "Tipo de material eliminado correctamente.";
+    }
+
+    private void Cancelar()
+    {
+        TipoMaterialActual = new();
+        _editando = false;
+        _mensaje = string.Empty;
+    }
+}

@@ -1,0 +1,126 @@
+﻿@page "/"
+@using BalanzaDigitalUg.Web.Components.Shared
+@using BalanzaDigitalUg.Web.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+@inject IJSRuntime Js
+@rendermode InteractiveServer
+
+<AuthorizeView Roles="Gestor,Admin">
+    <Authorized>
+        <PageTitle>Home</PageTitle>
+        <div class="container py-4">
+            <h2 class="mb-4">Resumen de registros procesados</h2>
+            <div class="row mb-4 g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Fecha inicio</label>
+                    <InputDate class="form-control" @bind-Value="_fechaInicio"/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha fin</label>
+                    <InputDate class="form-control" @bind-Value="_fechaFin"/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Comuna</label>
+                    <select class="form-select" @bind="_comunaId">
+                        <option value="">Todas</option>
+                        @foreach (var comuna in _comunas)
+                        {
+                            <option value="@comuna.Id">@comuna.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Usuario</label>
+                    <select class="form-select" @bind="_usuarioId">
+                        <option value="">Todos</option>
+                        @foreach (var usuario in _usuarios)
+                        {
+                            <option value="@usuario.Id">@usuario.Email</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-12 mt-2">
+                    <button class="btn btn-primary w-100" @onclick="FiltrarDatos">Actualizar gráfica</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <div style="max-width:1800px;width:100%;">
+                        <canvas id="chartRegistros" height="90"></canvas>
+                    </div>
+                </div>
+                <div class="text-center mt-2 text-muted" style="font-size:1em;">Distribución de peso total por tipo de material (gráfico de pastel)</div>
+            </div>
+        </div>
+
+        @code {
+            private List<Comuna> _comunas = [];
+            private List<ApplicationUser> _usuarios = [];
+            private DateTime _fechaInicio = DateTime.Now.AddMonths(-1);
+            private DateTime _fechaFin = DateTime.Now;
+            private int? _comunaId;
+            private string? _usuarioId;
+            private List<MaterialReciclado> _materiales = [];
+            private string[] _labels = [];
+            private double[] _values = [];
+            private bool _graficaPendiente = false;
+
+
+            protected override async Task OnInitializedAsync()
+            {
+                _comunas = await Db.Comunas.OrderBy(c => c.Nombre).ToListAsync();
+                _usuarios = await Db.Users.OrderBy(u => u.Email).ToListAsync();
+                await FiltrarDatos();
+            }
+
+            protected override async Task OnAfterRenderAsync(bool firstRender)
+            {
+                if (_graficaPendiente)
+                {
+                    await Js.InvokeVoidAsync("renderChartRegistros", _labels, _values);
+                    _graficaPendiente = false;
+                }
+            }
+
+            private async Task FiltrarDatos()
+            {
+                var query = Db.MaterialesReciclados
+                    .Include(m => m.Tipo)
+                    .Include(m => m.Comuna)
+                    .Include(m => m.Usuario)
+                    .AsQueryable();
+
+
+                query = query.Where(m => m.FechaIngreso >= _fechaInicio);
+                query = query.Where(m => m.FechaIngreso <= _fechaFin);
+                if (_comunaId is > 0)
+                    query = query.Where(m => m.ComunaId == _comunaId.Value);
+                if (!string.IsNullOrEmpty(_usuarioId))
+                    query = query.Where(m => m.UsuarioId == _usuarioId);
+
+                _materiales = await query.ToListAsync();
+                ActualizarGrafica();
+            }
+
+            private void ActualizarGrafica()
+            {
+                var datos = _materiales
+                    .GroupBy(m => m.Tipo.Nombre)
+                    .Select(g => new { Tipo = g.Key, Peso = g.Sum(x => x.Peso) })
+                    .OrderByDescending(x => x.Peso)
+                    .ToList();
+
+                _labels = datos.Select(d => d.Tipo).ToArray();
+                _values = datos.Select(d => (double)d.Peso).ToArray();
+                _graficaPendiente = true;
+                StateHasChanged();
+            }
+
+        }
+    </Authorized>
+    <NotAuthorized>
+        <RedirectToLogin/>
+    </NotAuthorized>
+
+</AuthorizeView>

@@ -1,0 +1,524 @@
+﻿/* components.css - Componentes reusables con nueva paleta */
+
+/* ============================================
+   BOTONES ACTUALIZADOS
+   ============================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    line-height: 1.5;
+    border-radius: var(--border-radius);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    white-space: nowrap;
+    user-select: none;
+    gap: 0.5rem;
+}
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+/* Botón primario - VERDE (Living) */
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+        border-color: var(--primary-dark);
+    }
+
+/* Botón secundario - AZUL (Academy) */
+.btn-secondary {
+    background: var(--gradient-secondary);
+    color: white;
+    border-color: var(--secondary);
+    box-shadow: var(--shadow-sm);
+}
+
+    .btn-secondary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+        border-color: var(--secondary-dark);
+    }
+
+/* Botón acento - NARANJA (Acción) */
+.btn-accent {
+    background: var(--gradient-accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+
+    .btn-accent:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+        border-color: var(--accent-dark);
+    }
+
+/* Botón outline */
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+    .btn-outline-primary:hover:not(:disabled) {
+        background: var(--primary);
+        color: white;
+    }
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+    .btn-outline-secondary:hover:not(:disabled) {
+        background: var(--secondary);
+        color: white;
+    }
+
+/* Tamaños */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: var(--font-size-xs);
+}
+
+.btn-lg {
+    padding: 0.875rem 1.75rem;
+    font-size: var(--font-size-base);
+}
+
+.btn-xl {
+    padding: 1rem 2rem;
+    font-size: var(--font-size-lg);
+}
+
+/* ============================================
+   FORMULARIOS ACTUALIZADOS
+   ============================================ */
+.form-group {
+    margin-bottom: var(--spacing-4);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: white;
+    background-clip: padding-box;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .form-control:focus {
+        border-color: var(--primary);
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: var(--gray-400);
+    }
+
+/* Select personalizado */
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232E8B57' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+/* Checkbox y Radio personalizados */
+.form-check {
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+    margin-bottom: var(--spacing-2);
+    gap: var(--spacing-2);
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .form-check-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+    }
+
+.form-check-label {
+    margin-bottom: 0;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   ALERTAS ACTUALIZADAS
+   ============================================ */
+.alert {
+    position: relative;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+}
+
+.alert-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+
+.alert-danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.alert-warning {
+    color: #664d03;
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+}
+
+.alert-info {
+    color: #055160;
+    background-color: #cff4fc;
+    border-color: #b6effb;
+}
+
+.alert-primary {
+    color: var(--primary-dark);
+    background-color: rgba(46, 139, 87, 0.1);
+    border-color: rgba(46, 139, 87, 0.2);
+}
+
+.alert-secondary {
+    color: var(--secondary-dark);
+    background-color: rgba(30, 58, 138, 0.1);
+    border-color: rgba(30, 58, 138, 0.2);
+}
+
+/* ============================================
+   TARJETAS ACTUALIZADAS
+   ============================================ */
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--bg-card);
+    background-clip: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+    .card:hover {
+        box-shadow: var(--shadow);
+        transform: translateY(-4px);
+    }
+
+.card-primary {
+    border-top: 4px solid var(--primary);
+}
+
+.card-secondary {
+    border-top: 4px solid var(--secondary);
+}
+
+.card-accent {
+    border-top: 4px solid var(--accent);
+}
+
+.card-body {
+    flex: 1 1 auto;
+    padding: var(--spacing-4);
+}
+
+.card-header {
+    padding: var(--spacing-4) var(--spacing-4) 0;
+    margin-bottom: 0;
+    background-color: transparent;
+    border-bottom: none;
+}
+
+.card-footer {
+    padding: 0 var(--spacing-4) var(--spacing-4);
+    background-color: transparent;
+    border-top: none;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: var(--border-radius-sm);
+}
+
+.badge-primary {
+    background-color: rgba(46, 139, 87, 0.1);
+    color: var(--primary);
+}
+
+.badge-secondary {
+    background-color: rgba(30, 58, 138, 0.1);
+    color: var(--secondary);
+}
+
+.badge-accent {
+    background-color: rgba(255, 140, 0, 0.1);
+    color: var(--accent-dark);
+}
+
+.badge-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+/* ============================================
+   UTILIDADES (mantener pero actualizar)
+   ============================================ */
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.text-secondary {
+    color: var(--secondary) !important;
+}
+
+.text-accent {
+    color: var(--accent) !important;
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.text-warning {
+    color: var(--warning) !important;
+}
+
+.text-info {
+    color: var(--info) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary) !important;
+}
+
+.bg-accent {
+    background-color: var(--accent) !important;
+}
+
+.border-primary {
+    border-color: var(--primary) !important;
+}
+
+.border-secondary {
+    border-color: var(--secondary) !important;
+}
+
+.border-accent {
+    border-color: var(--accent) !important;
+}
+
+/* Display utilities (mantener) */
+.d-none {
+    display: none !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-inline {
+    display: inline !important;
+}
+
+.d-inline-block {
+    display: inline-block !important;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.justify-content-around {
+    justify-content: space-around;
+}
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-start {
+    align-items: flex-start;
+}
+
+.align-items-end {
+    align-items: flex-end;
+}
+
+.align-items-stretch {
+    align-items: stretch;
+}
+
+/* Width utilities (mantener) */
+.w-25 {
+    width: 25% !important;
+}
+
+.w-50 {
+    width: 50% !important;
+}
+
+.w-75 {
+    width: 75% !important;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+/* Text utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+.text-sm {
+    font-size: var(--font-size-sm);
+}
+
+.text-base {
+    font-size: var(--font-size-base);
+}
+
+.text-lg {
+    font-size: var(--font-size-lg);
+}
+
+.text-xl {
+    font-size: var(--font-size-xl);
+}
+
+.font-weight-light {
+    font-weight: 300;
+}
+
+.font-weight-normal {
+    font-weight: 400;
+}
+
+.font-weight-medium {
+    font-weight: 500;
+}
+
+.font-weight-semibold {
+    font-weight: 600;
+}
+
+.font-weight-bold {
+    font-weight: 700;
+}

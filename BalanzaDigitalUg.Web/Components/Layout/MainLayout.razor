@@ -1,0 +1,116 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+
+<style>
+    .sidebar {
+        width: 240px;
+        min-height: 100vh;
+    }
+
+    .nav-link {
+        border-radius: 6px;
+        padding: 10px 12px;
+        transition: background-color 0.2s ease, padding-left 0.2s ease;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.12);
+        padding-left: 18px;
+        text-decoration: none;
+    }
+
+    .nav-link.active {
+        background-color: rgba(13, 110, 253, 0.85);
+        font-weight: 600;
+    }
+
+    .nav-link.active i {
+        color: #ffffff;
+    }
+
+    .sidebar-section-title {
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="d-flex" style="min-height: 100vh;">
+    <nav class="bg-dark text-white p-3 d-flex flex-column justify-content-between sidebar">
+        <div>
+            <div class="mb-4 text-center">
+                <img src="/images/logoUG.png" alt="Logo" height="150" width="150" />
+                <div class="fs-5 fw-bold mt-2">Balanza Digital</div>
+            </div>
+            <ul class="nav flex-column gap-2">
+                <AuthorizeView Roles="Gestor,Admin">
+                    <Authorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white"
+                                     href="/"
+                                     Match="NavLinkMatch.All">
+                                <i class="bi bi-house-fill me-2 fs-5"></i>
+                                Inicio
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white"
+                                     href="/procesarregistros">
+                                <i class="bi bi-arrow-repeat me-2 fs-5"></i>
+                                Procesar Registros Balanza
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white"
+                                     href="/registrosProcesados">
+                                <i class="bi bi-journal-check me-2 fs-5"></i>
+                                Consultar Registros Procesados
+                            </NavLink>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <div class="fw-bold text-white mb-2 d-flex align-items-center sidebar-section-title">
+                                <i class="bi bi-gear-fill me-2 fs-5"></i>
+                                Configuración
+                            </div>
+                            <ul class="nav flex-column ms-3 gap-1">
+                                <li class="nav-item">
+                                    <NavLink class="nav-link text-white"
+                                             href="/tipomateriales">
+                                        <i class="bi bi-boxes me-2 fs-6"></i>
+                                        Tipos de Material
+                                    </NavLink>
+                                </li>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link text-white"
+                                             href="/comunas">
+                                        <i class="bi bi-geo-alt-fill me-2 fs-6"></i>
+                                        Comunas
+                                    </NavLink>
+                                </li>
+                                <li class="nav-item">
+                                    <NavLink class="nav-link text-white"
+                                             href="/usuarios">
+                                        <i class="bi bi-people-fill me-2 fs-6"></i>
+                                        Usuarios
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+
+            </ul>
+        </div>
+        <LogoutBtn />
+    </nav>
+    <div class="flex-grow-1 bg-light">
+        <div class="container-fluid py-4">
+            @Body
+        </div>
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

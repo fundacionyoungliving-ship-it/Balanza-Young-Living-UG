@@ -1,0 +1,7 @@
+﻿services:
+  balanzadigitalug.web:
+    image: balanzadigitalug.web
+    build:
+      context: .
+      dockerfile: BalanzaDigitalUg.Web/Dockerfile
+

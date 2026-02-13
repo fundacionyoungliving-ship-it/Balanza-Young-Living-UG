@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>aspnet-BalanzaDigitalUg.Web-5ce1eca2-fc5d-4bc2-8510-9372591b164f</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Update="Data\app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Blazor.Bootstrap" Version="3.4.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.9" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.9" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Shared\ExternalLoginPicker.razor" />
+      <AdditionalFiles Include="Components\Shared\ManageLayout.razor" />
+      <AdditionalFiles Include="Components\Shared\ManageNavMenu.razor" />
+      <AdditionalFiles Include="Components\Shared\RedirectToLogin.razor" />
+      <AdditionalFiles Include="Components\Shared\ShowRecoveryCodes.razor" />
+      <AdditionalFiles Include="Components\Shared\StatusMessage.razor" />
+      <AdditionalFiles Include="Pages\Comunas\Comunas.razor" />
+      <AdditionalFiles Include="Pages\Error\Error.razor" />
+      <AdditionalFiles Include="Pages\Home\Home.razor" />
+      <AdditionalFiles Include="Pages\Materiales\TipoMateriales.razor" />
+      <AdditionalFiles Include="Pages\Registros\ProcesarRegistros.razor" />
+      <AdditionalFiles Include="Pages\Registros\RegistrosProcesados.razor" />
+      <AdditionalFiles Include="Pages\Usuarios\Usuarios.razor" />
+    </ItemGroup>
+
+</Project>

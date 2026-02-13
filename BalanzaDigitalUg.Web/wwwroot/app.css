@@ -1,0 +1,198 @@
+/* app.css - Estilos globales con nueva paleta */
+
+/* ============================================
+   FALLBACK PARA PÁGINAS DE AUTENTICACIÓN
+   (cuando JavaScript no funciona)
+   ============================================ */
+
+/* Esto funciona como fallback si JavaScript falla */
+body:has(.login-container) .sidebar,
+body:has(.login-card) .sidebar,
+body:has(.register-container) .sidebar {
+    display: none !important;
+}
+
+body:has(.login-container) .flex-grow-1,
+body:has(.login-card) .flex-grow-1,
+body:has(.register-container) .flex-grow-1 {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    /*background: linear-gradient(135deg, #2E8B57 0%, #1E3A8A 100%) !important;*/
+}
+
+/* ============================================
+   ESTILOS GLOBALES ACTUALIZADOS
+   ============================================ */
+
+/* Estilos de error de Blazor */
+#blazor-error-ui {
+    background: #fff3cd;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.75rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    border-top: 3px solid var(--warning);
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+        color: var(--text-muted);
+        font-weight: bold;
+    }
+
+/* Estilos de validación actualizados */
+.validation-message {
+    color: var(--danger);
+    font-size: var(--font-size-sm);
+    margin-top: 0.375rem;
+    display: block;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 2px solid var(--success);
+    border-color: var(--success) !important;
+}
+
+.invalid {
+    outline: 2px solid var(--danger);
+    border-color: var(--danger) !important;
+}
+
+/* Estilos para elementos deshabilitados */
+:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+
+:root {
+    --primary-foundation: #475569; 
+    --success-foundation: #059669; 
+    --bg-light: #f8fafc; 
+    --text-main: #1e293b; 
+    --border-soft: #e2e8f0; 
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+h3, h4 {
+    color: var(--text-main);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem !important;
+}
+
+.form-control, .form-select {
+    border: 1px solid var(--border-soft) !important;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-foundation) !important;
+        box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.1) !important;
+    }
+
+.btn-primary {
+    background-color: var(--primary-foundation) !important;
+    border: none !important;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.btn-success {
+    background-color: var(--success-foundation) !important;
+    border: none !important;
+}
+
+.alert-info {
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    border-radius: 8px;
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-border-color: #e2e8f0; 
+    --bs-table-accent-bg: transparent;
+    --bs-table-hover-bg: #f8fafc;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    border-collapse: separate !important; 
+    border-spacing: 0;
+}
+
+    .table thead, .table-dark {
+        --bs-table-bg: #f8fafc !important;
+        --bs-table-color: #64748b !important; 
+    }
+
+        .table thead th, .table-dark th {
+            font-weight: 600 !important;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 12px 15px !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            color: #64748b !important;
+        }
+
+    .table td {
+        padding: 12px 15px !important;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+
+    .table tr[style*="background-color:#e0f7fa"],
+    .table tr[style*="background-color: #e0f7fa"],
+    .fila-seleccionada {
+        background-color: #f1f5f9 !important;
+        border-left: 4px solid #475569 !important;
+        color: #1e293b !important;
+    }
+
+.table-bordered > :not(caption) > * > * {
+    border-width: 0 0 1px 0 !important; 
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 4px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+    }
+
+/* Selección de texto */
+::selection {
+    background-color: rgba(46, 139, 87, 0.3);
+    color: var(--text-primary);
+}

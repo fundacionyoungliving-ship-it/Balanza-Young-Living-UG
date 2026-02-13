@@ -1,0 +1,30 @@
+﻿@page "/Account/logout"
+@using Microsoft.AspNetCore.Identity
+@using BalanzaDigitalUg.Web.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavManager
+
+@code {
+    private bool _redirecting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_redirecting) return;
+        _redirecting = true;
+
+        try
+        {
+            await SignInManager.SignOutAsync();
+        }
+        finally
+        {
+            // Siempre redirigir, incluso si falla el logout
+            // Usar replaceHistoryEntry para mejor UX
+            NavManager.NavigateTo("/account/login", new NavigationOptions
+            {
+                ReplaceHistoryEntry = true
+            });
+        }
+    }
+}
+

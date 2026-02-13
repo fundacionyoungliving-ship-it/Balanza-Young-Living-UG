@@ -1,0 +1,172 @@
+﻿@page "/usuarios"
+@using BalanzaDigitalUg.Web.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@rendermode InteractiveServer
+
+<PageTitle>Administrar Usuarios</PageTitle>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <div class="container py-4">
+            <h2 class="mb-4">Administrar Usuarios</h2>
+            @* <button class="btn btn-success mb-3" @onclick="MostrarFormularioNuevo">Nuevo Usuario</button> *@
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Nombre de usuario</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var usuario in _usuarioss)
+                {
+                    <tr>
+                        <td>@usuario.Email</td>
+                        <td>@usuario.UserName</td>
+                        <td>@(_rolesPorUsuario.TryGetValue(usuario.Id, out var value) ? value : "Sin rol")</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" @onclick="() => EditarUsuario(usuario)">Editar
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => EliminarUsuario(usuario)">Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+            @if (_mostrarFormulario)
+            {
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">@(UsuarioEditando?.Id == null ? "Nuevo Usuario" : "Editar Usuario")</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText class="form-control" @bind-Value="UsuarioEditando.Email"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de usuario</label>
+                            <InputText class="form-control" @bind-Value="UsuarioEditando.UserName"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select" @bind="_rolEditando">
+                                @foreach (var rol in _rolesDisponibles)
+                                {
+                                    <option value="@rol">@rol</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3" hidden="@(UsuarioEditando?.Id != null)">
+                            <label class="form-label">Contraseña</label>
+                            <InputText class="form-control" @bind-Value="_passwordEditando" type="password"/>
+                        </div>
+                        <button class="btn btn-primary" @onclick="GuardarUsuario">Guardar</button>
+                        <button class="btn btn-secondary ms-2" @onclick="CancelarEdicion">Cancelar</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-danger mt-4">No tienes permisos para acceder a esta página.</div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [SupplyParameterFromForm] private ApplicationUser UsuarioEditando { get; set; } = new();
+    private List<ApplicationUser> _usuarioss = new();
+    private readonly Dictionary<string, string> _rolesPorUsuario = new();
+    private List<string> _rolesDisponibles = new();
+    private string _rolEditando = "Gestor";
+    private string _passwordEditando = "";
+    private bool _mostrarFormulario;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _rolesDisponibles = (await RoleManager.Roles.Select(r => r.Name).ToListAsync())!;
+        await CargarUsuarios();
+    }
+
+    private async Task CargarUsuarios()
+    {
+        _usuarioss = await UserManager.Users.OrderBy(u => u.Email).ToListAsync();
+        _rolesPorUsuario.Clear();
+        foreach (var usuario in _usuarioss)
+        {
+            var roles = await UserManager.GetRolesAsync(usuario);
+            _rolesPorUsuario[usuario.Id] = roles.FirstOrDefault() ?? "Sin rol";
+        }
+    }
+
+    private void MostrarFormularioNuevo()
+    {
+        UsuarioEditando = new ApplicationUser();
+        _rolEditando = _rolesDisponibles.FirstOrDefault() ?? "Gestor";
+        _passwordEditando = "";
+        _mostrarFormulario = true;
+    }
+
+    private void EditarUsuario(ApplicationUser usuario)
+    {
+        UsuarioEditando = new ApplicationUser
+        {
+            Id = usuario.Id,
+            Email = usuario.Email,
+            UserName = usuario.UserName
+        };
+        _rolEditando = _rolesPorUsuario.TryGetValue(usuario.Id, out var value) ? value : _rolesDisponibles.FirstOrDefault() ?? "Gestor";
+        _passwordEditando = "";
+        _mostrarFormulario = true;
+    }
+
+    private async Task GuardarUsuario()
+    {
+        if (string.IsNullOrWhiteSpace(UsuarioEditando.Email) || string.IsNullOrWhiteSpace(UsuarioEditando.UserName))
+            return;
+        IdentityResult result;
+        var usuarioDb = await UserManager.FindByIdAsync(UsuarioEditando.Id);
+        if (usuarioDb is null)
+        {
+            var nuevoUsuario = new ApplicationUser
+            {
+                Email = UsuarioEditando.Email, UserName = UsuarioEditando.UserName, EmailConfirmed = true
+            };
+            result = await UserManager.CreateAsync(nuevoUsuario, _passwordEditando);
+            if (result.Succeeded)
+            {
+                await UserManager.AddToRoleAsync(nuevoUsuario, _rolEditando);
+            }
+        }
+        else
+        {
+            usuarioDb.Email = UsuarioEditando.Email;
+            usuarioDb.UserName = UsuarioEditando.UserName;
+            await UserManager.UpdateAsync(usuarioDb);
+            var rolesActuales = await UserManager.GetRolesAsync(usuarioDb);
+            foreach (var rol in rolesActuales)
+                await UserManager.RemoveFromRoleAsync(usuarioDb, rol);
+            await UserManager.AddToRoleAsync(usuarioDb, _rolEditando);
+        }
+
+        _mostrarFormulario = false;
+        await CargarUsuarios();
+    }
+
+    private async Task EliminarUsuario(ApplicationUser usuario)
+    {
+        await UserManager.DeleteAsync(usuario);
+        await CargarUsuarios();
+    }
+
+    private void CancelarEdicion()
+    {
+        _mostrarFormulario = false;
+    }
+
+}
