@@ -1,5 +1,4 @@
-﻿<!-- Pantalla para procesar registros no procesados -->
-@page "/ProcesarRegistros"
+﻿@page "/ProcesarRegistros"
 @using System.Security.Claims
 @using BalanzaDigitalUg.Web.Data
 @using Microsoft.AspNetCore.Identity
@@ -15,7 +14,8 @@
 
     <h3 class="mb-4">Registros pendientes de procesar</h3>
 
-    <div class="alert alert-info">Para procesar un registro, haga <b>doble clic</b> sobre la fila correspondiente en la
+    <div class="alert alert-info">
+        Para procesar un registro, haga <b>doble clic</b> sobre la fila correspondiente en la
         tabla.
     </div>
     <div class="row mb-4 g-3 align-items-end">
@@ -59,30 +59,30 @@
     else
     {
         <div class="table-responsive d-flex justify-content-center">
-            <table class="table table-sm table-bordered align-middle" style="max-width:1000px;font-size:0.95em;">
+            <table class="table align-middle">
                 <thead class="table-dark">
-                <tr>
-                    <th>Id</th>
-                    <th>Uid</th>
-                    <th>Nombre</th>
-                    <th>Material</th>
-                    <th>Peso (kg)</th>
-                    <th>Fecha</th>
-                </tr>
+                    <tr>
+                        <th>Id</th>
+                        <th>Uid</th>
+                        <th>Nombre</th>
+                        <th>Material</th>
+                        <th>Peso (kg)</th>
+                        <th>Fecha</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach (var reg in _registrosPaginaActual)
-                {
-                    <tr ondblclick="@(() => OnRegistroDobleClick(reg.Id))"
-                        style="cursor:pointer;@(reg.Id == _registroSeleccionadoId ? "background-color:#e0f7fa;" : null)">
-                        <td>@reg.Id</td>
-                        <td>@reg.Uid</td>
-                        <td>@reg.Nombre</td>
-                        <td>@reg.Material</td>
-                        <td>@reg.Peso</td>
-                        <td>@reg.Fecha.ToString("g")</td>
-                    </tr>
-                }
+                    @foreach (var reg in _registrosPaginaActual)
+                    {
+                        <tr ondblclick="@(() => OnRegistroDobleClick(reg.Id))"
+                            style="cursor:pointer;@(reg.Id == _registroSeleccionadoId ? "background-color:#e0f7fa;" : null)">
+                            <td>@reg.Id</td>
+                            <td>@reg.Uid</td>
+                            <td>@reg.Nombre</td>
+                            <td>@reg.Material</td>
+                            <td>@reg.Peso</td>
+                            <td>@reg.Fecha.ToString("g")</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -95,7 +95,9 @@
                 {
                     <li class="page-item @(_paginaActual == pageNumber ? "active" : "")">
                         <button class="page-link"
-                                @onclick="() => GoToPage(pageNumber)">@(pageNumber.ToString())</button>
+                                @onclick="() => GoToPage(pageNumber)">
+                            @(pageNumber.ToString())
+                        </button>
                     </li>
                 }
                 <li class="page-item @(_paginaActual == TotalPaginas ? "disabled" : "")">
@@ -105,7 +107,7 @@
         </nav>
     }
 
-    <hr class="my-4"/>
+    <hr class="my-4" />
     @if (!string.IsNullOrEmpty(_mensajeError))
     {
         <div class="alert alert-danger mt-3" id="alertError">@_mensajeError</div>
@@ -116,8 +118,8 @@
     }
     <h4>Crear material reciclado y marcar registro como procesado</h4>
     <EditForm Model="NuevoMaterial" OnSubmit="ProcesarRegistro" class="row g-3" FormName="materialesForm">
-        <DataAnnotationsValidator/>
-        <ValidationSummary class="text-danger"/>
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" />
 
 
         <div class="col-md-4">
@@ -132,7 +134,7 @@
         </div>
         <div class="col-md-4">
             <label class="form-label">Peso (kg)</label>
-            <InputNumber class="form-control" @bind-Value="NuevoMaterial.Peso" required/>
+            <InputNumber class="form-control" @bind-Value="NuevoMaterial.Peso" required />
         </div>
         <div class="col-md-4">
             <label class="form-label">Comuna</label>
@@ -163,7 +165,6 @@
     private Timer? _alertTimer;
     private Timer? _alertErrorTimer;
 
-    // Paginación
     private int _paginaActual = 1;
     private readonly int _tamanioPagina = 5;
     private int TotalPaginas => _registrosPendientes is null ? 1 : (int)Math.Ceiling(_registrosPendientes.Count / (double)_tamanioPagina);
@@ -230,6 +231,35 @@
         StateHasChanged();
     }
 
+    private async Task FiltrarRegistros()
+    {
+      
+        var query = Db.Registros
+            .Where(r => !r.ProcesadoEnAppWeb)
+            .AsQueryable();
+
+        // 1. Filtro de Fechas (Ajustamos _fechaFin al final del día 23:59:59)
+        var fechaFinAjustada = _fechaFin.Date.AddDays(1).AddTicks(-1);
+        query = query.Where(r => r.Fecha >= _fechaInicio.Date && r.Fecha <= fechaFinAjustada);
+
+        // 2. Filtro de Material (Select)
+        if (!string.IsNullOrEmpty(_filtroMaterial))
+        {
+            query = query.Where(r => r.Material == _filtroMaterial);
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(_filtroNombre))
+        {
+            query = query.Where(r => r.Nombre.Contains(_filtroNombre) || r.Uid.Contains(_filtroNombre));
+        }
+
+        _registrosPendientes = await query.OrderByDescending(r => r.Fecha).ToListAsync();
+        _paginaActual = 1;
+        UpdateDisplayedItems();
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await CargarDatosAsync();
@@ -280,7 +310,6 @@
 
     private async Task ProcesarRegistro()
     {
-        // validar usuario autenticado
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         if (user.Identity is null || !user.Identity.IsAuthenticated)
@@ -320,12 +349,11 @@
         };
         Db.MaterialesReciclados.Add(material);
 
-        // Marcar el registro como procesado
         registro.ProcesadoEnAppWeb = true;
         await Db.SaveChangesAsync();
 
         MostrarMensaje("Registro procesado correctamente.");
-        // Limpiar formulario y recargar datos
+
         NuevoMaterial = new();
         _registroSeleccionadoId = null;
         await OnInitializedAsync();
@@ -351,7 +379,7 @@
 
             NuevoMaterial.UsuarioBalanza = registro.Nombre;
         }
-       
+
         StateHasChanged();
     }
 

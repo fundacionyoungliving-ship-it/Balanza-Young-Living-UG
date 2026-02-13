@@ -43,32 +43,32 @@
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered align-middle">
+        <div class="table-responsive d-flex justify-content-center">
+            <table class="table align-middle">
                 <thead class="table-dark">
-                <tr>
-                    <th>Id</th>
-                    <th>Tipo</th>
-                    <th>Peso (kg)</th>
-                    <th>Usuario que entregó material</th>
-                    <th>Usuario que procesó material</th>
-                    <th>Comuna</th>
-                    <th>Fecha</th>
-                </tr>
+                    <tr>
+                        <th>Id</th>
+                        <th>Tipo</th>
+                        <th>Peso (kg)</th>
+                        <th>Usuario que entregó material</th>
+                        <th>Usuario que procesó material</th>
+                        <th>Comuna</th>
+                        <th>Fecha</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach (var mat in _materialesPaginaActual)
-                {
-                    <tr>
-                        <td>@mat.Id</td>
-                        <td>@mat.Tipo?.Nombre</td>
-                        <td>@mat.Peso</td>
-                        <td>@mat.UsuarioBalanza</td>
-                        <td>@mat.Usuario?.UserName</td>
-                        <td>@mat.Comuna?.Nombre</td>
-                        <td>@mat.FechaIngreso.ToString("g")</td>
-                    </tr>
-                }
+                    @foreach (var mat in _materialesPaginaActual)
+                    {
+                        <tr>
+                            <td>@mat.Id</td>
+                            <td>@mat.Tipo?.Nombre</td>
+                            <td>@mat.Peso</td>
+                            <td>@mat.UsuarioBalanza</td>
+                            <td>@mat.Usuario?.UserName</td>
+                            <td>@mat.Comuna?.Nombre</td>
+                            <td>@mat.FechaIngreso.ToString("g")</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
