@@ -231,35 +231,6 @@
         StateHasChanged();
     }
 
-    private async Task FiltrarRegistros()
-    {
-      
-        var query = Db.Registros
-            .Where(r => !r.ProcesadoEnAppWeb)
-            .AsQueryable();
-
-        // 1. Filtro de Fechas (Ajustamos _fechaFin al final del día 23:59:59)
-        var fechaFinAjustada = _fechaFin.Date.AddDays(1).AddTicks(-1);
-        query = query.Where(r => r.Fecha >= _fechaInicio.Date && r.Fecha <= fechaFinAjustada);
-
-        // 2. Filtro de Material (Select)
-        if (!string.IsNullOrEmpty(_filtroMaterial))
-        {
-            query = query.Where(r => r.Material == _filtroMaterial);
-        }
-
-
-        if (!string.IsNullOrWhiteSpace(_filtroNombre))
-        {
-            query = query.Where(r => r.Nombre.Contains(_filtroNombre) || r.Uid.Contains(_filtroNombre));
-        }
-
-        _registrosPendientes = await query.OrderByDescending(r => r.Fecha).ToListAsync();
-        _paginaActual = 1;
-        UpdateDisplayedItems();
-        StateHasChanged();
-    }
-
     protected override async Task OnInitializedAsync()
     {
         await CargarDatosAsync();
