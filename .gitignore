@@ -8,3 +8,6 @@ riderModule.iml
 *.user
 *.userosscache
 *.suo
+
+.vs/
+*.user
