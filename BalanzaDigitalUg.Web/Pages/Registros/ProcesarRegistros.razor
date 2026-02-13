@@ -18,6 +18,35 @@
     <div class="alert alert-info">Para procesar un registro, haga <b>doble clic</b> sobre la fila correspondiente en la
         tabla.
     </div>
+    <div class="row mb-4 g-3 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label">Fecha inicio</label>
+            <InputDate class="form-control" @bind-Value="_fechaInicio" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Fecha fin</label>
+            <InputDate class="form-control" @bind-Value="_fechaFin" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Material</label>
+            <select class="form-select" @bind="_filtroMaterial">
+                <option value="">Todos</option>
+                @foreach (var tipo in _tiposMaterial)
+                {
+                    <option value="@tipo.Nombre">@tipo.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Nombre / UID</label>
+            <input type="text" class="form-control" placeholder="Buscar..." @bind="_filtroNombre" />
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100" @onclick="FiltrarRegistros">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </div>
 
     @if (_registrosPendientes is null)
     {
@@ -90,7 +119,6 @@
         <DataAnnotationsValidator/>
         <ValidationSummary class="text-danger"/>
 
-        <!-- Eliminado el select de registro a procesar -->
 
         <div class="col-md-4">
             <label class="form-label">Tipo de material</label>
@@ -140,6 +168,14 @@
     private readonly int _tamanioPagina = 5;
     private int TotalPaginas => _registrosPendientes is null ? 1 : (int)Math.Ceiling(_registrosPendientes.Count / (double)_tamanioPagina);
 
+
+    private DateTime _fechaInicio = DateTime.Now.AddMonths(-1);
+    private DateTime _fechaFin = DateTime.Now;
+    private int? _comunaId;
+    private string _filtroNombre = "";
+    private string _filtroMaterial = "";
+    private string _filtroUid = "";
+
     private IEnumerable<Registros> _registrosPaginaActual = [];
 
     private void PaginaAnterior()
@@ -163,6 +199,36 @@
         _paginaActual = pageNumber;
         UpdateDisplayedItems();
     }
+    
+    private async Task FiltrarRegistros()
+    {
+        // Empezamos con la base de registros no procesados
+        var query = Db.Registros
+            .Where(r => !r.ProcesadoEnAppWeb)
+            .AsQueryable();
+
+        // 1. Filtro de Fechas (Ajustamos _fechaFin al final del día 23:59:59)
+        var fechaFinAjustada = _fechaFin.Date.AddDays(1).AddTicks(-1);
+        query = query.Where(r => r.Fecha >= _fechaInicio.Date && r.Fecha <= fechaFinAjustada);
+
+        // 2. Filtro de Material (Select)
+        if (!string.IsNullOrEmpty(_filtroMaterial))
+        {
+            query = query.Where(r => r.Material == _filtroMaterial);
+        }
+
+        // 3. Filtro de Nombre/UID (Input)
+        if (!string.IsNullOrWhiteSpace(_filtroNombre))
+        {
+            query = query.Where(r => r.Nombre.Contains(_filtroNombre) || r.Uid.Contains(_filtroNombre));
+        }
+
+        // Ejecutar y actualizar UI
+        _registrosPendientes = await query.OrderByDescending(r => r.Fecha).ToListAsync();
+        _paginaActual = 1;
+        UpdateDisplayedItems();
+        StateHasChanged();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -172,14 +238,11 @@
 
     private async Task CargarDatosAsync()
     {
-        _registrosPendientes = await Db.Registros
-            .Where(r => !r.ProcesadoEnAppWeb)
-            .OrderBy(r => r.Fecha)
-            .ToListAsync();
-
         _tiposMaterial = await Db.TipoMateriales.OrderBy(t => t.Nombre).ToListAsync();
         _comunas = await Db.Comunas.OrderBy(c => c.Nombre).ToListAsync();
-        _paginaActual = 1; // Reiniciar a la primera página al recargar datos
+
+        await FiltrarRegistros();
+
     }
 
     private void UpdateDisplayedItems()
