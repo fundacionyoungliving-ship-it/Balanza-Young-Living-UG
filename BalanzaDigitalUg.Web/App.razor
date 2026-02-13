@@ -5,25 +5,201 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
+
+    <!-- Bootstrap (mantener) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link href="_content/Blazor.Bootstrap/blazor.bootstrap.css" rel="stylesheet" />
+
+    <!-- NUEVO: Sistema de temas modular -->
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="account.css">
+
+    <!-- Tus estilos existentes (mantener) -->
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["BalanzaDigitalUg.Web.styles.css"]" />
+
+    <!-- Google Fonts (opcional pero recomendado) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <ImportMap />
     <HeadOutlet />
 </head>
 
 <body>
     <Routes />
+
+    <!-- Scripts del framework Blazor -->
     <script src="_framework/blazor.web.js"></script>
+
+    <!-- Bootstrap JS (mantener) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-    <script src="_content/Blazor.Bootstrap/blazor.bootstrap.js"></script>
-    
+
+    <!-- Chart.js (mantener) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+    <!-- NUEVO: Sistema de JavaScript modular -->
+    <script src="js/theme.js"></script>
+    <script src="js/components/password-toggle.js"></script>
+
+    <!-- Tu script existente -->
     <script src="/js/chartRegistros.js"></script>
 
-    
-    </body>
+    <!-- Inicialización automática -->
+    <script>
+        // Inicializar cuando Blazor esté listo
+        window.addEventListener('load', function() {
+            // Inicializar tema
+            if (window.ThemeManager) {
+                const themeManager = new ThemeManager();
+                themeManager.init();
+            }
+
+            // Inicializar botones de contraseña
+            if (window.PasswordToggle && typeof PasswordToggle.initAll === 'function') {
+                setTimeout(() => {
+                    PasswordToggle.initAll();
+                }, 500);
+            }
+        });
+
+        // También inicializar después de cada renderizado de Blazor
+        window.addEventListener('blazor-ready', function() {
+            if (window.PasswordToggle && typeof PasswordToggle.initAll === 'function') {
+                PasswordToggle.initAll();
+            }
+        });
+    </script>
+
+    <!-- Script para ocultar menú en login 
+    <script>
+        // Esperar a que Blazor cargue
+        window.addEventListener('load', function() {
+            // Verificar si estamos en la página de login
+            if (window.location.pathname.includes('/Account/Login')) {
+                // Esperar a que Blazor renderice
+                setTimeout(function() {
+                    // Ocultar el menú lateral
+                    const sidebar = document.querySelector('.sidebar');
+                    if (sidebar) {
+                        sidebar.style.display = 'none';
+                    }
+
+                    // Expandir el contenido principal
+                    const mainContent = document.querySelector('.flex-grow-1.bg-light');
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '0';
+                        mainContent.style.width = '100%';
+                    }
+
+                    // Ocultar la barra superior si existe
+                    const topRow = document.querySelector('.top-row');
+                    if (topRow) {
+                        topRow.style.display = 'none';
+                    }
+                }, 300);
+            }
+        });
+    </script>--->
+
+    <!-- Script MEJORADO y SIMPLE para manejar layout en login -->
+    <script>
+        // ============================================
+        // FUNCIÓN PRINCIPAL - Simple y directa
+        // ============================================
+        function ajustarLayoutLogin() {
+            const path = window.location.pathname.toLowerCase();
+            const esLogin = path.includes('/account/login');
+
+            if (esLogin) {
+                // 1. OCULTAR SIDEBAR
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) {
+                    sidebar.style.display = 'none';
+                    sidebar.style.visibility = 'hidden';
+                }
+
+                // 2. OCULTAR TOPBAR
+                const topRow = document.querySelector('.top-row');
+                if (topRow) {
+                    topRow.style.display = 'none';
+                }
+
+                // 3. AJUSTAR CONTENIDO PRINCIPAL
+                const mainContent = document.querySelector('.flex-grow-1.bg-light');
+                if (mainContent) {
+                    mainContent.style.cssText = `
+                        margin-left: 0 !important;
+                        width: 100% !important;
+                       
+                        min-height: 100vh !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        padding: 20px !important;
+                    `;
+                }
+
+                // 4. FONDO PARA TODO EL BODY
+                //document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+
+            } else {
+                // RESTAURAR TODO CUANDO NO ES LOGIN
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) {
+                    sidebar.style.display = '';
+                    sidebar.style.visibility = '';
+                }
+
+                const topRow = document.querySelector('.top-row');
+                if (topRow) {
+                    topRow.style.display = '';
+                }
+
+                const mainContent = document.querySelector('.flex-grow-1.bg-light');
+                if (mainContent) {
+                    mainContent.style.cssText = '';
+                }
+
+                document.body.style.background = '';
+            }
+        }
+
+        // ============================================
+        // CUÁNDO EJECUTAR LA FUNCIÓN
+        // ============================================
+
+        // 1. Cuando se carga la página (RECARGAR)
+        window.addEventListener('load', function() {
+            setTimeout(ajustarLayoutLogin, 300);
+        });
+
+        // 2. Cuando Blazor termina de cargar (INICIAL)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(ajustarLayoutLogin, 500);
+        });
+
+        // 3. SOLUCIÓN CLAVE: Detectar cuando Blazor navega entre páginas
+        // Esta es la parte que faltaba en tu script original
+        let currentHref = location.href;
+
+        function checkForURLChange() {
+            if (location.href !== currentHref) {
+                currentHref = location.href;
+                // Pequeña pausa para que Blazor renderice la nueva página
+                setTimeout(ajustarLayoutLogin, 100);
+            }
+        }
+
+        // Verificar cambios cada 100ms (suficiente para SPA)
+        setInterval(checkForURLChange, 100);
+
+        // 4. También cuando el usuario usa botones atrás/adelante
+        window.addEventListener('popstate', function() {
+            setTimeout(ajustarLayoutLogin, 150);
+        });
+    </script>
+
+</body>
 
 </html>

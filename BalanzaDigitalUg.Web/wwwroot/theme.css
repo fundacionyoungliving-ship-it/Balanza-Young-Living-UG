@@ -1,0 +1,277 @@
+﻿/* theme.css - Variables CSS globales actualizadas con paleta Living Lab Academy */
+
+:root {
+    /* ============================================
+       NUEVA PALETA LIVING LAB ACADEMY
+       ============================================ */
+    /* Verde - Living, naturaleza, vida */
+    --primary: #2E8B57; /* Verde bosque (Sea Green) */
+    --primary-dark: #1F6B3F; /* Verde más oscuro */
+    --primary-light: #3CB371; /* Verde medio (Medium Sea Green) */
+    --primary-soft: #90EE90; /* Verde claro (Light Green) */
+    /* Azul - Academy, educación, seriedad */
+    --secondary: #1E3A8A; /* Azul marino oscuro */
+    --secondary-dark: #0F2A5A; /* Azul más oscuro */
+    --secondary-light: #3B4F9A; /* Azul medio */
+    --secondary-soft: #4A6FA5; /* Azul suave */
+    /* Acento - Llamadas a la acción */
+    --accent: #FF8C00; /* Naranja oscuro (Dark Orange) */
+    --accent-dark: #CC7000; /* Naranja más oscuro */
+    --accent-light: #FFA726; /* Naranja claro */
+    --accent-soft: #FFB74D; /* Naranja suave */
+    /* Alternativa dorada */
+    --gold: #D4AF37; /* Dorado (Metallic Gold) */
+    --gold-dark: #B8941F;
+    --gold-light: #FFD700;
+    /* Estados y utilidades (mantener pero ajustar) */
+    --success: #10b981; /* Verde éxito */
+    --warning: #f59e0b; /* Amarillo/naranja advertencia */
+    --danger: #e53e3e; /* Rojo peligro */
+    --info: #3182ce; /* Azul información */
+    /* ============================================
+       ESCALA DE GRISES AJUSTADA
+       ============================================ */
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-200: #eeeeee;
+    --gray-300: #e0e0e0;
+    --gray-400: #bdbdbd;
+    --gray-500: #9e9e9e; /* Texto muted */
+    --gray-600: #757575; /* Texto secundario */
+    --gray-700: #616161;
+    --gray-800: #424242; /* Texto principal */
+    --gray-900: #212121;
+    /* ============================================
+       APLICACIÓN DE COLORES
+       ============================================ */
+    --bg-body: #f8f9fa; /* Fondo general claro */
+    --bg-card: #ffffff; /* Fondo de tarjetas */
+    --bg-sidebar: var(--primary-dark); /* Sidebar verde oscuro */
+    --bg-header: var(--secondary); /* Header azul */
+    /* Texto */
+    --text-primary: #2d3748; /* Texto principal - gris oscuro */
+    --text-secondary: #718096; /* Texto secundario */
+    --text-muted: #a0aec0;
+    --text-on-dark: #ffffff; /* Texto sobre fondos oscuros */
+    --text-on-light: var(--gray-800);
+    /* Bordes */
+    --border-color: #e2e8f0;
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    /* Sombras - más suaves y naturales */
+    --shadow-sm: 0 1px 3px rgba(46, 139, 87, 0.1);
+    --shadow: 0 4px 6px -1px rgba(46, 139, 87, 0.1), 0 2px 4px -1px rgba(30, 58, 138, 0.06);
+    --shadow-md: 0 10px 15px -3px rgba(46, 139, 87, 0.1), 0 4px 6px -2px rgba(30, 58, 138, 0.05);
+    --shadow-lg: 0 20px 25px -5px rgba(46, 139, 87, 0.1), 0 10px 10px -5px rgba(30, 58, 138, 0.04);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    --gradient-living: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    /* Tipografía (mantener) */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-serif: 'Merriweather', Georgia, serif; /* Opcional para títulos */
+    --font-mono: 'SF Mono', Monaco, Consolas, monospace;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    /* Espaciado (mantener) */
+    --spacing-1: 0.25rem;
+    --spacing-2: 0.5rem;
+    --spacing-3: 0.75rem;
+    --spacing-4: 1rem;
+    --spacing-5: 1.25rem;
+    --spacing-6: 1.5rem;
+    --spacing-8: 2rem;
+    --spacing-10: 2.5rem;
+    --spacing-12: 3rem;
+    --spacing-16: 4rem;
+}
+
+/* ============================================
+   MODO OSCURO (opcional)
+   ============================================ */
+[data-theme="dark"] {
+    --bg-body: #1a202c;
+    --bg-card: #2d3748;
+    --bg-sidebar: var(--primary-dark);
+    --bg-header: var(--secondary-dark);
+    --text-primary: #f7fafc;
+    --text-secondary: #cbd5e0;
+    --text-muted: #a0aec0;
+    --text-on-dark: #ffffff;
+    --text-on-light: var(--gray-800);
+    --border-color: #4a5568;
+}
+
+/* ============================================
+   ESTILOS BASE ACTUALIZADOS
+   ============================================ */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--bg-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Títulos con serifa opcional */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: var(--spacing-4);
+    color: var(--primary-dark);
+}
+
+h1 {
+    font-size: var(--font-size-3xl);
+    color: var(--secondary);
+}
+
+h2 {
+    font-size: var(--font-size-2xl);
+    color: var(--primary);
+}
+
+h3 {
+    font-size: var(--font-size-xl);
+    color: var(--primary-dark);
+}
+
+/* Enlaces */
+a {
+    color: var(--secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+    a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+    }
+
+/* Utilidades de contenedor (mantener) */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-4);
+}
+
+.container-sm {
+    max-width: 640px;
+}
+
+.container-md {
+    max-width: 768px;
+}
+
+.container-lg {
+    max-width: 1024px;
+}
+
+.container-xl {
+    max-width: 1280px;
+}
+
+/* Utilidades de espaciado (mantener) */
+.mt-1 {
+    margin-top: var(--spacing-1);
+}
+
+.mt-2 {
+    margin-top: var(--spacing-2);
+}
+
+.mt-3 {
+    margin-top: var(--spacing-3);
+}
+
+.mt-4 {
+    margin-top: var(--spacing-4);
+}
+
+.mt-5 {
+    margin-top: var(--spacing-5);
+}
+
+.mt-6 {
+    margin-top: var(--spacing-6);
+}
+
+.mt-8 {
+    margin-top: var(--spacing-8);
+}
+
+.mb-1 {
+    margin-bottom: var(--spacing-1);
+}
+
+.mb-2 {
+    margin-bottom: var(--spacing-2);
+}
+
+.mb-3 {
+    margin-bottom: var(--spacing-3);
+}
+
+.mb-4 {
+    margin-bottom: var(--spacing-4);
+}
+
+.mb-5 {
+    margin-bottom: var(--spacing-5);
+}
+
+.mb-6 {
+    margin-bottom: var(--spacing-6);
+}
+
+.mb-8 {
+    margin-bottom: var(--spacing-8);
+}
+
+.p-1 {
+    padding: var(--spacing-1);
+}
+
+.p-2 {
+    padding: var(--spacing-2);
+}
+
+.p-3 {
+    padding: var(--spacing-3);
+}
+
+.p-4 {
+    padding: var(--spacing-4);
+}
+
+.p-5 {
+    padding: var(--spacing-5);
+}
+
+.p-6 {
+    padding: var(--spacing-6);
+}
+
+.p-8 {
+    padding: var(--spacing-8);
+}
