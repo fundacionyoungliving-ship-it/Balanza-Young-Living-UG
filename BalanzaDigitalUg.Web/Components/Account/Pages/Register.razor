@@ -1,4 +1,5 @@
 ﻿@page "/Account/Register"
+@layout BalanzaDigitalUg.Web.Components.Layout.EmptyLayout
 
 @using System.ComponentModel.DataAnnotations
 @using System.Text
@@ -15,43 +16,174 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Registro de usuario</PageTitle>
+<PageTitle>Registro - Young Living Academy</PageTitle>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <section class="shadow rounded p-4 bg-white">
-                <h2 class="mb-4 text-center">Crear una nueva cuenta</h2>
-                <StatusMessage Message="@Message" />
-                <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary class="text-danger mb-3" role="alert" />
-                    <div class="form-floating mb-3">
-                        <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="nombre@ejemplo.com" />
-                        <label for="Input.Email">Correo electrónico</label>
-                        <ValidationMessage For="() => Input.Email" class="text-danger" />
-                    </div>
-                    <div class="form-floating mb-3">
-                        <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="contraseña" />
-                        <label for="Input.Password">Contraseña</label>
-                        <ValidationMessage For="() => Input.Password" class="text-danger" />
-                    </div>
-                    <div class="form-floating mb-3">
-                        <InputText type="password" @bind-Value="Input.ConfirmPassword" id="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="contraseña" />
-                        <label for="Input.ConfirmPassword">Confirmar contraseña</label>
-                        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-                    </div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary">Registrarse</button>
-                </EditForm>
-            </section>
+@* --- ESTILOS COMPARTIDOS (Mismos del Login) --- *@
+<style>
+    /* Fondo de pantalla completo con la imagen */
+    .login-wrapper {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        
+        /* IMAGEN DE FONDO + Overlay Azul Oscuro */
+        background: linear-gradient(rgba(0, 51, 102, 0.6), rgba(0, 51, 102, 0.8)), url('images/institucion.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    /* La Tarjeta Central Blanca */
+    .login-card-center {
+        background-color: #ffffff;
+        width: 100%;
+        max-width: 500px; /* Un poco más ancha que el login por tener más campos */
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        padding: 40px 35px;
+        position: relative;
+        text-align: center;
+    }
+
+    /* Logo */
+    .logo-img {
+        max-height: 80px; 
+        width: auto;
+        margin-bottom: 15px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Títulos */
+    .login-title {
+        color: #003366; /* Azul Oscuro */
+        font-weight: 800;
+        font-size: 1.6rem;
+        margin-bottom: 5px;
+    }
+
+    .login-subtitle {
+        color: #556b2f; /* Verde oliva */
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+    }
+
+    /* Inputs Estilizados */
+    .form-floating > .form-control {
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: #28a745; 
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15);
+        background-color: #fff;
+    }
+
+    .form-floating > label {
+        color: #888;
+    }
+
+    /* Botón Principal */
+    .btn-login {
+        background-color: #28a745; /* Verde Young Living */
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+    }
+
+    .btn-login:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(33, 136, 56, 0.35);
+    }
+
+    /* Links y Divider */
+    .link-primary-custom {
+        color: #003366;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .link-primary-custom:hover {
+        color: #28a745;
+        text-decoration: underline;
+    }
+
+    .divider-text {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #a0a0a0;
+        margin: 25px 0;
+        font-size: 0.8rem;
+    }
+    .divider-text::before, .divider-text::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .divider-text::before { margin-right: 10px; }
+    .divider-text::after { margin-left: 10px; }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card-center animate__animated animate__zoomIn">
+        
+        <img src="images/yla.png" alt="Young Living Logo" class="logo-img" />
+
+        <h1 class="login-title">Crear Cuenta</h1>
+        <p class="login-subtitle">Únete a nuestra plataforma institucional</p>
+
+        <StatusMessage Message="@Message" />
+
+        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" class="text-start">
+            <DataAnnotationsValidator />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="nombre@ejemplo.com" />
+                <label for="Input.Email">Correo electrónico</label>
+                <ValidationMessage For="() => Input.Email" class="text-danger small mt-1" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="contraseña" />
+                <label for="Input.Password">Contraseña</label>
+                <ValidationMessage For="() => Input.Password" class="text-danger small mt-1" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText type="password" @bind-Value="Input.ConfirmPassword" id="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="contraseña" />
+                <label for="Input.ConfirmPassword">Confirmar contraseña</label>
+                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger small mt-1" />
+            </div>
+
+            <button type="submit" class="btn btn-login w-100">
+                REGISTRARSE
+            </button>
+        </EditForm>
+
+        <div class="divider-text">o</div>
+
+        <div class="text-center">
+            <span class="text-secondary small">¿Ya tienes una cuenta?</span>
+            <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" class="link-primary-custom ms-1">
+                Iniciar Sesión
+            </a>
         </div>
-        @* <div class="col-lg-4"> *@
-        @*     <section class="shadow rounded p-4 bg-white mt-4 mt-lg-0"> *@
-        @*         <h4 class="mb-3 text-center">Usar otro servicio para registrarse</h4> *@
-        @*         <hr /> *@
-        @*         <ExternalLoginPicker /> *@
-        @*     </section> *@
-        @* </div> *@
+
     </div>
 </div>
 
@@ -88,7 +220,8 @@
                 "Account/RegisterConfirmation",
                 new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
         }
-        // insertar rol de Gestor
+        
+        // insertar rol de Gestor (Lógica mantenida)
         await UserManager.AddToRoleAsync(user, "Gestor");
         await SignInManager.SignInAsync(user, isPersistent: false);
         RedirectManager.RedirectTo(ReturnUrl);
@@ -118,12 +251,12 @@
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "El correo es requerido")]
+        [EmailAddress(ErrorMessage = "Formato inválido")]
         [Display(Name = "Correo electrónico")]
         public string Email { get; set; } = "";
 
-        [Required]
+        [Required(ErrorMessage = "La contraseña es requerida")]
         [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y máximo {1} caracteres.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
