@@ -1,5 +1,4 @@
 ﻿@page "/Account/Login"
-
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
@@ -12,45 +11,66 @@
 
 <PageTitle>Iniciar sesión</PageTitle>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <section class="shadow rounded p-4 bg-white">
-                <h2 class="mb-4 text-center">Iniciar sesión</h2>
-                <StatusMessage Message="@errorMessage" />
-                <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary class="text-danger mb-3" role="alert" />
-                    <div class="form-floating mb-3">
-                        <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="nombre@ejemplo.com" />
-                        <label for="Input.Email" class="form-label">Correo electrónico</label>
-                        <ValidationMessage For="() => Input.Email" class="text-danger" />
-                    </div>
-                    <div class="form-floating mb-3">
-                        <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="contraseña" />
-                        <label for="Input.Password" class="form-label">Contraseña</label>
-                        <ValidationMessage For="() => Input.Password" class="text-danger" />
-                    </div>
-                    <div class="form-check mb-3">
-                        <InputCheckbox @bind-Value="Input.RememberMe" class="form-check-input" id="Input.RememberMe" />
-                        <label class="form-check-label" for="Input.RememberMe">Recordarme</label>
-                    </div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary mb-2">Ingresar</button>
-                    <div class="d-flex flex-column gap-1 mt-3">
-                        <a href="Account/ForgotPassword" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
-                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" class="text-decoration-none">Registrarse como nuevo usuario</a>
-                        @* <a href="Account/ResendEmailConfirmation" class="text-decoration-none">Reenviar confirmación de correo</a> *@
-                    </div>
-                </EditForm>
-            </section>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 class="login-title">Iniciar Sesión</h1>
+            <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
         </div>
-        @* <div class="col-lg-4"> *@
-        @*     <section class="shadow rounded p-4 bg-white mt-4 mt-lg-0"> *@
-        @*         <h4 class="mb-3 text-center">Usar otro servicio para iniciar sesión</h4> *@
-        @*         <hr /> *@
-        @*         <ExternalLoginPicker /> *@
-        @*     </section> *@
-        @* </div> *@
+
+        <StatusMessage Message="@errorMessage" />
+
+        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="loginForm" class="login-form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" role="alert" />
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="Input.Email" class="form-label">Correo electrónico</label>
+                <InputText @bind-Value="Input.Email"
+                           id="Input.Email"
+                           class="form-control"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="nombre@ejemplo.com" />
+                <ValidationMessage For="() => Input.Email" class="validation-message" />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="form-group">
+                <label for="passwordInput" class="form-label">Contraseña</label>
+                <div class="password-field">
+                    <InputText type="password"
+                               @bind-Value="Input.Password"
+                               id="passwordInput"
+                               class="form-control"
+                               autocomplete="current-password"
+                               aria-required="true"
+                               placeholder="••••••••" />
+                </div>
+                <ValidationMessage For="() => Input.Password" class="validation-message" />
+            </div>
+
+            <!-- Recordar -->
+            <div class="remember-me">
+                <InputCheckbox @bind-Value="Input.RememberMe"
+                               class="form-check-input"
+                               id="Input.RememberMe" />
+                <label class="form-check-label" for="Input.RememberMe">Recordarme</label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        </EditForm>
+
+        <!-- Enlaces -->
+        <div class="auth-links">
+            <a href="Account/ForgotPassword" class="auth-link">¿Olvidaste tu contraseña?</a>
+            <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))"
+               class="auth-link">
+                Registrarse como nuevo usuario
+            </a>
+        </div>
     </div>
 </div>
 
@@ -70,13 +90,17 @@
     {
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
-            // Limpiar la cookie externa para asegurar un login limpio
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         }
     }
 
+    // ELIMINA EL MÉTODO OnAfterRenderAsync COMPLETO
+    // El JS ahora se inicializa automáticamente
+
     public async Task LoginUser()
     {
+        errorMessage = null;
+
         var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
@@ -102,11 +126,11 @@
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "El correo electrónico es requerido")]
+        [EmailAddress(ErrorMessage = "Ingresa un correo electrónico válido")]
         public string Email { get; set; } = "";
 
-        [Required]
+        [Required(ErrorMessage = "La contraseña es requerida")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
 
