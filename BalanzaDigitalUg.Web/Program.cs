@@ -28,7 +28,10 @@ builder.Services.AddAuthentication(options =>
 // builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //     options.UseSqlite(connectionString));
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("InMemoryDb"));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //     options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"),
@@ -52,7 +55,6 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
-    db.Database.EnsureCreated();
     await InitialData.SeedUsersAsync(services);
     await InitialData.SeedRolesAsync(services);
 }
