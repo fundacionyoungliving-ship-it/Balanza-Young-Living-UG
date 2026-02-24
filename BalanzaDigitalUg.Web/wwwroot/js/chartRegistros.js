@@ -63,21 +63,75 @@ window.renderChartRegistros = (labels, values) => {
                         fontColor: '#333'
                     }
                 },
-                // Ajustes de tooltips con tamaño de fuente mayor
-                tooltips: {
-                    bodyFontSize: 14,
-                    titleFontSize: 15,
+                tooltip: {
                     callbacks: {
-                        label: function(tooltipItem, data) {
-                            const idx = tooltipItem.index;
-                            const val = data.datasets[tooltipItem.datasetIndex].data[idx];
-                            const pct = (Number(val) / total * 100).toFixed(1);
-                            // Mostrar etiqueta base (sin porcentaje duplicado) + valor + porcentaje
-                            return `${baseLabels[idx]}: ${val} (${pct}%)`;
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            let value = context.raw;
+                            return `${label}: ${Math.round(value)}`;
                         }
                     }
                 }
             }
         });
     }
+};
+
+let chartComunasInstance = null;
+window.renderChartComunas = (labels, values) => {
+
+    const canvas = document.getElementById('chartComunas');
+    if (!canvas) {
+        chartComunasInstance = null;
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    if (chartComunasInstance) {
+        chartComunasInstance.destroy();
+        chartComunasInstance = null;
+    }
+
+    chartComunasInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Cantidad de registros',
+                data: values.map(v => parseInt(v)),
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'x',
+
+            scales: {
+                x: {
+                    ticks: {
+                        autoSkip: false
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    beginAtZero: true,
+                    min: 0,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
+            },
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
 };
