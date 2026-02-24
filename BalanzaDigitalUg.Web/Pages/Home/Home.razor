@@ -44,14 +44,33 @@
                     <button class="btn btn-primary w-100" @onclick="FiltrarDatos">Actualizar gráfica</button>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12 d-flex justify-content-center">
-                    <div style="max-width:1800px;width:100%;">
-                        <canvas id="chartRegistros" height="90"></canvas>
-                    </div>
+                <div class="row g-4 mt-3 align-items-center">
+            <div class="col-md-6 d-flex flex-column justify-content-center align-items-center h-100">
+                <div style="width:100%; max-width:600px; height:400px;">
+                    @if (_values.Length > 0)
+                    {
+                        <canvas id="chartRegistros"></canvas>
+                    }
+                    
+                </div>  
+                <div class="text-center mt-2 text-muted">
+                    Distribución de peso total por tipo de material
                 </div>
-                <div class="text-center mt-2 text-muted" style="font-size:1em;">Distribución de peso total por tipo de material (gráfico de pastel)</div>
             </div>
+            <div class="col-md-6 d-flex flex-column align-items-center">
+                <div style="width:100%; max-width:600px; height:400px;">
+                    @if (_valuesComunas.Length > 0)
+                    {
+                        <canvas id="chartComunas"></canvas>
+                    }
+                    
+                </div>
+                <div class="text-center mt-2 text-muted">
+                    Participación por comuna (número de registros)
+                </div>
+            </div>
+
+</div>
         </div>
 
         @code {
@@ -64,6 +83,8 @@
             private List<MaterialReciclado> _materiales = [];
             private string[] _labels = [];
             private double[] _values = [];
+            private string[] _labelsComunas = [];
+           private int[] _valuesComunas = [];
             private bool _graficaPendiente = false;
 
 
@@ -79,6 +100,7 @@
                 if (_graficaPendiente)
                 {
                     await Js.InvokeVoidAsync("renderChartRegistros", _labels, _values);
+                    await Js.InvokeVoidAsync("renderChartComunas", _labelsComunas, _valuesComunas);
                     _graficaPendiente = false;
                 }
             }
@@ -115,6 +137,14 @@
                 _values = datos.Select(d => (double)d.Peso).ToArray();
                 _graficaPendiente = true;
                 StateHasChanged();
+                var datosComunas = _materiales
+                    .GroupBy(m => m.Comuna.Nombre)
+                    .Select(g => new { Comuna = g.Key, Cantidad = g.Count() })
+                    .OrderByDescending(x => x.Cantidad)
+                    .ToList();
+
+                _labelsComunas = datosComunas.Select(d => d.Comuna).ToArray();
+                _valuesComunas = datosComunas.Select(d => d.Cantidad).ToArray();
             }
 
         }
