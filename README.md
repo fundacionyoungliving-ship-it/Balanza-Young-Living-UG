@@ -1,4 +1,4 @@
-# BalanzaDigitalUg
+# BalanzaDigitalUG
 
 Este proyecto es una aplicación web desarrollada en C# y Blazor, pensada para la gestión de registros de materiales reciclados. Está orientada a estudiantes universitarios que están comenzando a aprender programación, especialmente si tienen experiencia previa en Python y Java.
 
