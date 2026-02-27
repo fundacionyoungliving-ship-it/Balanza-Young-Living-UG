@@ -27,7 +27,9 @@ builder.Services.AddAuthentication(options =>
 // var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 // builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //     options.UseSqlite(connectionString));
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("InMemoryDb"));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 // builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //     options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"),
 //         new MySqlServerVersion(new Version(8, 0, 32)))
@@ -57,7 +59,6 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
-    db.Database.EnsureCreated();
     await InitialData.SeedUsersAsync(services);
     await InitialData.SeedRolesAsync(services);
 }
